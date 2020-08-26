@@ -1,5 +1,11 @@
 package main
 
+import (
+	"flag"
+	"fmt"
+	"os"
+)
+
 /**
   执行逻辑
    1、根据配置文件，连接到指定的服务端
@@ -9,7 +15,33 @@ package main
 */
 func main() {
 	//
+	var configfile string
+	var scriptfile string
 
+	flag.StringVar(&configfile, "c", "", "the config file")
+	flag.StringVar(&scriptfile, "s", "", "script file name")
+	flag.Usage = usage
+	flag.Parse()
+	if configfile == "" && scriptfile == "" {
+		flag.Usage()
+	} else if scriptfile != "" {
+		fmt.Println(scriptfile)
+		w := LuaWorker{}
+		w.Init()
+		w.RunScript(scriptfile)
+	}
+}
+
+/**
+  输出使用文档
+*/
+func usage() {
+	fmt.Fprintf(os.Stderr, `hobbit version: hobbit/1.0.0
+Usage: hobbit [-h] [-c filename] |[-s filename]
+
+Options:
+`)
+	flag.PrintDefaults()
 }
 
 //任务连接配置
