@@ -22,14 +22,17 @@ func DoPost(url string, content string, writer io.Writer, headers map[string]str
 func doMethod(method string, url string, content string, writer io.Writer, headers map[string]string) error {
 	//请求客户端
 	c := http.DefaultClient
+	//请求，最多请求三次
+	times := 1
+DO_POST:
 	var body io.Reader
 	if content == "" {
 		body = nil
 	} else {
 		body = strings.NewReader(string(content))
 	}
-
 	req, err := http.NewRequest(method, url, body)
+
 	//设置header
 	if headers != nil {
 		for k, v := range headers {
@@ -37,9 +40,6 @@ func doMethod(method string, url string, content string, writer io.Writer, heade
 		}
 	}
 
-	//请求，最多请求三次
-	times := 1
-DO_POST:
 	resp, err := c.Do(req)
 	if err != nil {
 		errs(err.Error())
@@ -52,6 +52,7 @@ DO_POST:
 			return err
 		}
 	}
+
 	//读取返回body内容
 	defer resp.Body.Close()
 	_, err = io.Copy(writer, resp.Body)

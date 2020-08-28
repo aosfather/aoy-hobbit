@@ -15,6 +15,20 @@ func NodeChildAttrToArray(node *goquery.Selection, attr string) []string {
 	var urls []string
 	var href string
 	var exists bool
+	node = node.Children()
+	node.Each(func(index int, s *goquery.Selection) {
+		href, exists = s.Attr(attr)
+		if exists {
+			urls = append(urls, href)
+		}
+	})
+	return urls
+}
+
+func NodesChildrenAttrToArray(node *goquery.Selection, attr string) []string {
+	var urls []string
+	var href string
+	var exists bool
 	node.Each(func(index int, s *goquery.Selection) {
 		href, exists = s.Children().Attr(attr)
 		if exists {

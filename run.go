@@ -26,7 +26,7 @@ func main() {
 		flag.Usage()
 	} else if scriptfile != "" {
 		fmt.Println(scriptfile)
-		w := LuaWorker{}
+		w := LuaWorker{outpath: "work"}
 		w.Init()
 		w.RunScript(scriptfile)
 	}
