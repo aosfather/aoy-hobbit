@@ -42,10 +42,17 @@ func (this *LuaWorker) Init() {
 	this.script.SetPool(lua.NewLuaPool(10, "aoy", libs))
 	this.script.Log = this.log
 }
+func (this *LuaWorker) beforeRun(l *l.LState) {
+
+}
+
+func (this *LuaWorker) afterRun(l *l.LState) {
+
+}
 
 func (this *LuaWorker) RunScript(filename string) {
 	this.script.Loadfile(filename)
-	this.script.Call()
+	this.script.Call(this.beforeRun, this.afterRun)
 }
 
 func (this *LuaWorker) log(s string) {
