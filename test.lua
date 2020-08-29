@@ -1,5 +1,6 @@
 m=require("aoy")
 -- require "io"
+--[[
 file = io.open ("shell.go","r")
 io.input(file)
 print(io.read())
@@ -21,3 +22,6 @@ arrays=m.html_attr("href")
 print(arrays[1])
 print("--------------")
 --print(e)
+--]]
+--m.os_run("C:\\Program Files\\Notepad++\\notepad++.exe",{""})
+--print(m.os_cmd("dir",{"c:"}))

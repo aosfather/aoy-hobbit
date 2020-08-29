@@ -23,9 +23,9 @@ func (this *LuaWorker) Init() {
 	libs["http_get"] = this.lua_http_get
 	libs["http_post"] = this.lua_http_post
 	////本地程序调用
-	libs["os_run"] = nil
-	libs["os_shell"] = nil
-	libs["os_cmd"] = nil
+	libs["os_run"] = this.lua_os_run
+	libs["os_shell"] = this.lua_os_shell
+	libs["os_cmd"] = this.lua_os_cmd
 	//发送邮件
 	libs["sendmail"] = this.lua_sendmail
 	//html处理
@@ -59,6 +59,38 @@ func (this *LuaWorker) log(s string) {
 	debug(s)
 }
 
+//------系统功能调用--------//
+func (this *LuaWorker) lua_os_run(l *l.LState) int {
+	args := l.Get(-1)
+	l.Pop(1)
+	cmd := l.Get(-1).String()
+	l.Pop(1)
+	buffer := new(bytes.Buffer)
+	RunCMD(cmd, buffer, lua.ToGoStringArray(args)...)
+	l.Push(lua.ToLuaValue(buffer.String()))
+	return 1
+}
+
+func (this *LuaWorker) lua_os_shell(l *l.LState) int {
+	cmd := l.Get(-1).String()
+	l.Pop(1)
+	buffer := new(bytes.Buffer)
+	RunCMDWithShell(cmd, buffer)
+	l.Push(lua.ToLuaValue(buffer.String()))
+	return 1
+}
+
+func (this *LuaWorker) lua_os_cmd(l *l.LState) int {
+	args := l.Get(-1)
+	l.Pop(1)
+	cmd := l.Get(-1).String()
+	l.Pop(1)
+	buffer := new(bytes.Buffer)
+	RunCMDWithDos(cmd, buffer, lua.ToGoStringArray(args)...)
+	l.Push(lua.ToLuaValue(buffer.String()))
+	return 1
+}
+
 //获取文本内容
 func (this *LuaWorker) lua_http_get(l *l.LState) int {
 	content := l.Get(-1).String()
@@ -77,10 +109,12 @@ func (this *LuaWorker) lua_http_get(l *l.LState) int {
 
 //post请求
 func (this *LuaWorker) lua_http_post(l *l.LState) int {
-	url := l.Get(-1).String()
-	l.Pop(1)
 	body := l.Get(-1).String()
 	l.Pop(1)
+
+	url := l.Get(-1).String()
+	l.Pop(1)
+
 	buffer := new(bytes.Buffer)
 	err := DoPost(url, body, buffer, nil)
 	if err != nil {
