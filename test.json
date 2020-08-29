@@ -1,0 +1,9 @@
+{"Id": "121",
+  "Code": "test",
+  "Label": "测试一下",
+  "Script": "test.lua",
+  "ScriptType": "lua",
+  "InitParamter": [
+    {"Code": "url","Label": "","Value":"http://www.baidu.com"}
+  ]
+}

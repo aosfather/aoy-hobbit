@@ -25,3 +25,7 @@ print("--------------")
 --]]
 --m.os_run("C:\\Program Files\\Notepad++\\notepad++.exe",{""})
 --print(m.os_cmd("dir",{"c:"}))
+print("hello task run")
+print(_inputs.url)
+_records.result="yes"
+print(_records.result)

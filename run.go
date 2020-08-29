@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 )
 
@@ -17,18 +19,38 @@ func main() {
 	//
 	var configfile string
 	var scriptfile string
+	var taskfile string
 
-	flag.StringVar(&configfile, "c", "", "the config file")
-	flag.StringVar(&scriptfile, "s", "", "script file name")
+	flag.StringVar(&configfile, "c", "", "run with the config file")
+	flag.StringVar(&taskfile, "t", "", "run task file")
+	flag.StringVar(&scriptfile, "s", "", " run script file")
 	flag.Usage = usage
 	flag.Parse()
-	if configfile == "" && scriptfile == "" {
+	if len(os.Args) != 3 || (configfile == "" && scriptfile == "" && taskfile == "") {
 		flag.Usage()
-	} else if scriptfile != "" {
+	} else if scriptfile != "" { //执行指定的脚本文件，用于本地脚本测试
 		fmt.Println(scriptfile)
 		w := LuaWorker{outpath: "work"}
 		w.Init()
 		w.RunScript(scriptfile)
+	} else if taskfile != "" { //执行指定的task文件，用于本地task测试之用
+		fmt.Println(taskfile)
+		taskcontent, err := ioutil.ReadFile(taskfile)
+		if err != nil {
+			debug(err.Error())
+			return
+		}
+		t := &Task{}
+		json.Unmarshal(taskcontent, t)
+		debug(t)
+		te := TaskExecutor{}
+		te.WorkRootPath = ""
+		te.Init(t)
+		te.Run()
+
+	} else {
+		//根据configfile设置，连接到任务服务器ring上获取任务进行执行
+
 	}
 }
 
@@ -37,7 +59,7 @@ func main() {
 */
 func usage() {
 	fmt.Fprintf(os.Stderr, `hobbit version: hobbit/1.0.0
-Usage: hobbit [-h] [-c filename] |[-s filename]
+Usage: hobbit [-c filename] |[-s filename] | [-t filename]
 
 Options:
 `)

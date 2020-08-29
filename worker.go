@@ -9,10 +9,20 @@ import (
 	"strings"
 )
 
+//工作上下文
+type Worker interface {
+	SetInputs(inputs map[string]interface{})
+	AddInput(key string, value interface{})
+	LoadRecords(records map[string]interface{})
+	RunScript(filename string)
+}
+
 //工作者
 type LuaWorker struct {
 	script  *lua.LuaScript
 	outpath string
+	inputs  map[string]interface{}
+	records map[string]interface{}
 }
 
 func (this *LuaWorker) Init() {
@@ -42,12 +52,35 @@ func (this *LuaWorker) Init() {
 	this.script.SetPool(lua.NewLuaPool(10, "aoy", libs))
 	this.script.Log = this.log
 }
+func (this *LuaWorker) SetInputs(inputs map[string]interface{}) {
+	this.inputs = inputs
+}
+func (this *LuaWorker) AddInput(key string, value interface{}) {
+	if key == "" || value == "" {
+		return
+	}
+	if this.inputs == nil {
+		this.inputs = make(map[string]interface{})
+	}
+	this.inputs[key] = value
+}
+
+func (this *LuaWorker) LoadRecords(records map[string]interface{}) {
+	this.records = records
+}
+
 func (this *LuaWorker) beforeRun(l *l.LState) {
 
+	//压入输入参数，只读
+	l.SetGlobal("_inputs", lua.SetReadOnly(l, lua.ToLuaTable2(l, this.inputs)))
+	//压入记录
+	l.SetGlobal("_records", lua.ToLuaTable2(l, this.records))
 }
 
 func (this *LuaWorker) afterRun(l *l.LState) {
-
+	debug(this.records)
+	//读取记录
+	l.GetGlobal("_records")
 }
 
 func (this *LuaWorker) RunScript(filename string) {
