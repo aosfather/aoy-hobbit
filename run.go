@@ -44,7 +44,7 @@ func main() {
 		json.Unmarshal(taskcontent, t)
 		debug(t)
 		te := TaskExecutor{}
-		te.WorkRootPath = ""
+		te.WorkRootPath = "."
 		te.Init(t)
 		te.Run()
 

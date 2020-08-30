@@ -27,5 +27,8 @@ print("--------------")
 --print(m.os_cmd("dir",{"c:"}))
 print("hello task run")
 print(_inputs.url)
-_records.result="yes"
+--_records.result="yes"
+log("--test---")
 print(_records.result)
+_records.result="yes"
+log(" new log")

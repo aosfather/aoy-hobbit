@@ -14,6 +14,7 @@ type Worker interface {
 	SetInputs(inputs map[string]interface{})
 	AddInput(key string, value interface{})
 	LoadRecords(records map[string]interface{})
+	GetRecords() map[string]interface{}
 	RunScript(filename string)
 }
 
@@ -23,10 +24,18 @@ type LuaWorker struct {
 	outpath string
 	inputs  map[string]interface{}
 	records map[string]interface{}
+	Log     lua.LuaLogFunction
 }
 
 func (this *LuaWorker) Init() {
 	this.script = &lua.LuaScript{}
+	debug("set log")
+	if this.Log != nil {
+		this.script.Log = this.Log
+	} else {
+		this.script.Log = this.log
+	}
+
 	this.script.Context = make(map[string]interface{})
 	libs := make(map[string]l.LGFunction)
 	//http访问接口
@@ -50,7 +59,6 @@ func (this *LuaWorker) Init() {
 	libs["html_children_attr"] = this.lua_html_children_attr
 	libs["pack"] = this.lua_pack
 	this.script.SetPool(lua.NewLuaPool(10, "aoy", libs))
-	this.script.Log = this.log
 }
 func (this *LuaWorker) SetInputs(inputs map[string]interface{}) {
 	this.inputs = inputs
@@ -69,6 +77,9 @@ func (this *LuaWorker) LoadRecords(records map[string]interface{}) {
 	this.records = records
 }
 
+func (this *LuaWorker) GetRecords() map[string]interface{} {
+	return this.records
+}
 func (this *LuaWorker) beforeRun(l *l.LState) {
 
 	//压入输入参数，只读
@@ -80,7 +91,8 @@ func (this *LuaWorker) beforeRun(l *l.LState) {
 func (this *LuaWorker) afterRun(l *l.LState) {
 	debug(this.records)
 	//读取记录
-	l.GetGlobal("_records")
+	rec := l.GetGlobal("_records")
+	this.records = lua.ToGoMap(rec)
 }
 
 func (this *LuaWorker) RunScript(filename string) {
@@ -89,6 +101,7 @@ func (this *LuaWorker) RunScript(filename string) {
 }
 
 func (this *LuaWorker) log(s string) {
+	debug("log----")
 	debug(s)
 }
 
