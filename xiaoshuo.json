@@ -1,0 +1,13 @@
+{"Id": "121",
+  "Code": "test",
+  "Label": "测试一下",
+  "Script": "synckindle.lua",
+  "ScriptType": "lua",
+  "InitParamter": [
+    {"Code": "host","Label": "","Value":"smtp.163.com"},
+    {"Code": "port","Label": "","Value":"25"},
+    {"Code": "from","Label": "","Value":"send4kindle@163.com"},
+    {"Code": "pwd","Label": "","Value":"------"},
+    {"Code": "to","Label": "","Value":"------_new@kindle.cn"}
+  ]
+}
